@@ -5,11 +5,12 @@ import pandas as pd
 """Args linea de comandos"""
 @click.command()
 @click.option('--i', default=1, prompt='Iteraciones',help='Numero de iteraciones.')
-@click.option('--v', default=0, prompt='Velocidad',help='Velocidad.')
-def main_(i,v):
+@click.option('--v', default=0, help='Velocidad.')
+@click.option('--d', default=0, help='Retraso.')
+def main_(i,v,d):
     """inicio del programa"""
     click.echo(f"inicio del programa!")
-    main(i,v)
+    main(i,v,d)
 
 """Pandas"""
 def leer_libro(path): #Lee el archivo
@@ -29,28 +30,34 @@ def apilar(libro):
 
 def desapilar(libro): 
     return libro["desapilar"].values[0]
+"""Pandas"""
 
-
-"""Configuracion de turtle"""
-def config_turtle(tortuga,v):
-    tortuga.left(90)
+"""
+Configuracion de turtle
+"""
+def config_turtle(v,d):
     turtle.screensize(30000, 30000)
     turtle.speed(v)
-    turtle.delay(v)
+    turtle.delay(d)
     turtle.hideturtle()
 
-def construir_cadena(hoja,tronco, iteraciones, libro):#crea un diccionario de diccionarios para recorrer el automata
+"""
+Crea una cadena a partir de la produccion de la gramatica dada
+"""
+def construir_cadena(hoja,tronco, iteraciones, libro):
     cadena = "0"
-    prod1=str(libro['produccion'].values[0])
-    prod2=str(libro['produccion'].values[1])
-    print(f'prod 1 {prod1} , prod 2 {prod2}')
+    # prod1=str(libro['produccion'].values[0])
+    # prod2=str(libro['produccion'].values[1])
+    # print(f'prod 1 {prod1} , prod 2 {prod2}')
     for i in range(iteraciones):
             cadena = cadena.replace(tronco, str(libro['produccion'].values[0]))
             cadena = cadena.replace(hoja, str(libro['produccion'].values[1]))
     return cadena
 
-"""Funcion principal"""
-def main(iteraciones, velocidad):
+"""
+Funcion principal
+"""
+def main(iteraciones, velocidad, delay):
 
     """
     No terminales: 0,1
@@ -65,17 +72,18 @@ def main(iteraciones, velocidad):
     """
 
     libro = leer_libro("./prueba.xlsx")
-    print(libro)
+    
+    print(f'Lectura de datos del libro excel:\n{libro}')
     
     tortuga=turtle.Turtle()
 
-    config_turtle(tortuga, velocidad)
+    config_turtle(velocidad, delay)
 
     posicion=[]
     angulo=[]
-    turtle.speed(10)
-    tamanio_hoja=10/iteraciones
-    tamanio_tronco=10/iteraciones
+    tortuga.left(90)
+    tamanio_hoja=30/iteraciones
+    tamanio_tronco=25/iteraciones
     angle=45
 
     def giro_izq(angle):
@@ -108,20 +116,19 @@ def main(iteraciones, velocidad):
                 desapilar(libro) :  lambda tamanio_hoja,tamanio_tronco,angle: giro_der(angle),
                 }
 
-    # cadena = '0'
     h = str(hoja(libro))
     t = str(tronco(libro))
  
 
     cadena = construir_cadena(h, t, iteraciones, libro)
 
-    print(cadena)
+    print(f'Cadena producida:\n{cadena}\ncon {iteraciones} iteraciones')
 
     for caracter in cadena:
         funciones[caracter](tamanio_hoja,tamanio_tronco,angle)
 
     turtle.done()
-    pausa = input()
+    turtle.exitonclick()
 
 
 if __name__ == "__main__":
